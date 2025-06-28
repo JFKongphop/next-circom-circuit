@@ -5,8 +5,12 @@ import {
 } from 'snarkjs';
 
 export type Input = {
-  x: number,
-  y: number
+  root: string,
+  nullifier: string,
+  secret: string[],
+  loanAmount: string,
+  pathElements: string[],    
+  pathIndices: string[]
 }
 
 export type OutPut = {
@@ -15,8 +19,8 @@ export type OutPut = {
 }
 
 export const generateProof = async (input: Input): Promise<OutPut> => {
-  const wasmResponse = await fetch('/square_and_sum.wasm');
-  const zkeyResponse = await fetch('/square_and_sum.zkey');
+  const wasmResponse = await fetch('/withdraw.wasm');
+  const zkeyResponse = await fetch('/withdraw.zkey');
 
   const wasmBuffer = await wasmResponse.arrayBuffer();
   const zkeyBuffer = await zkeyResponse.arrayBuffer();

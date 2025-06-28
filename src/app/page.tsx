@@ -3,14 +3,40 @@
 import Image from "next/image";
 import { useEffect } from "react";
 import { generateProof, Input, verifyProof } from "@/lib/circuit";
+import { MerkleTree } from 'fixed-merkle-tree';
+import { poseidon2, poseidon3 } from "poseidon-lite";
 
 export default function Home() {
   useEffect(() => {
     (async () => {
-      const input: Input = {
-        'x': 3,
-        'y': 4
-      };
+
+      const leaves: any[] = [
+        21362129056158329025019672339647649050330365837101218665366675844875421984058n, 16976654511024363731103234522986755424935696017597796114282861145680784822770n, 17189055137523049887508690165583623741203649687216871893996499276459610241377n, 19014214495641488759237505126948346942972912379615652741039992445865937985820n
+      ];
+      const tree = new MerkleTree(2, leaves, {
+        hashFunction: (a, b) => poseidon2([a, b]) as any,
+        zeroElement: 0n as any
+      });
+
+      console.log(tree)
+
+      const commitment: any = poseidon3([12, 11,100]);
+      console.log(tree.proof(commitment))
+
+      const nullifier = 12;
+      const secret = 11;
+      const loanAmount = 100;
+
+      const { pathElements, pathIndices, pathRoot } = tree.proof(commitment);
+      
+      const input = {
+        root: pathRoot.toString(),
+        nullifier: commitment.toString(),
+        secret: [nullifier, secret].map((x) => x.toString()),
+        loanAmount: loanAmount.toString(),
+        pathElements: pathElements.map((x) => x.toString()),    
+        pathIndices: pathIndices.map((x) => x.toString())
+      };  
 
       const { proof, publicSignals } = await generateProof(input);
 
